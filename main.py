@@ -1,6 +1,8 @@
 import logging
 import os
 from typing import Dict
+
+from aiogram.client.default import DefaultBotProperties
 from aiogram.filters.command import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
