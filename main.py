@@ -7,7 +7,7 @@ from aiogram.filters.command import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from datetime import datetime
-from aiogram_calendar import SimpleCalendar, SimpleCalendarCallback, get_user_locale
+from aiogram_calendar import SimpleCalendar, SimpleCalendarCallback
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.enums import ParseMode
 from aiogram.filters.callback_data import CallbackData
@@ -92,9 +92,7 @@ async def city_chosen(message: Message, state: FSMContext):
     #  Обновляет текущее состояние, сохраняя выбранный город в нижнем регистре.
     await state.update_data(chosen_city=message.text.lower())
     # Генерирует календарь для выбора даты начала поездки с учетом локализации пользователя и задает диапазон дат.
-    calendar = SimpleCalendar(
-        locale=await get_user_locale(message.from_user), show_alerts=True
-    )
+    calendar = SimpleCalendar(show_alerts=True)
     calendar.set_dates_range(datetime(2022, 1, 1), datetime(2025, 12, 31))
     # Отправляет пользователю сообщение с просьбой выбрать дату начала поездки и прикрепляет сгенерированный календарь.
     await message.answer(
@@ -132,8 +130,7 @@ async def process_start_date_choosing(callback_query: CallbackQuery, callback_da
     :param callback_data: Данные, связанные с колбэком.
     :param state: Текущее состояние конечного автомата.
     """
-    calendar = SimpleCalendar(
-        locale=await get_user_locale(callback_query.from_user), show_alerts=True
+    calendar = SimpleCalendar(show_alerts=True
     )
     today_date = datetime.today()
     # Валидация выбора даты с помощью диапазона, доступного в календаре. Не может предшествовать текущей дате.
@@ -169,9 +166,7 @@ async def process_end_date_choosing(callback_query: CallbackQuery, callback_data
     :param callback_data: Данные, связанные с колбэком.
     :param state: Текущее состояние конечного автомата.
     """
-    calendar = SimpleCalendar(
-        locale=await get_user_locale(callback_query.from_user), show_alerts=True
-    )
+    calendar = SimpleCalendar(show_alerts=True)
     user_data = await state.get_data()
     calendar.set_dates_range(user_data['start_date'],
                              datetime(day=user_data['start_date'].day, month=user_data['start_date'].month,
