@@ -44,10 +44,26 @@ Cоздайте виртуальное окружение:
 
 ```pip install -r requirements.txt```
 
-Из соображений безопасности токен телеграм бота хранится в файле config.py. В репозитории необходимо создать файл 'config.py' и заполнить его по шаблону:
+Из соображений безопасности токен телеграм бота хранится в файле .env В репозитории необходимо создать файл '.env' и заполнить его по шаблону:
 
 ```
 TOKEN=<токен_вашего_бота>
 ```
+
+### Скриншоты
+Start command:
+
+![Start command](screenshots/start.png?raw=true "Start")
+
+Выбор дат поездки:
+
+![Dates choosing](screenshots/dates_choosing.png?raw=true "Dates choosing")
+
+Настройка сортировки экскурсий:
+
+![Sorting menu](screenshots/sorting_menu.png?raw=true "Sorting menu")
+
+
 ### Использование
-Проект задеплоен на бесперебойно работающий сервер, например [PythonAnywhere](https://www.pythonanywhere.com/ ) или [Heroku](https://www.heroku.com/).
+Проект задеплоен на бесперебойно работающий сервер [Heroku](https://www.heroku.com/).
+Ссылка на бота https://t.me/TripFriendBot.

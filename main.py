@@ -6,7 +6,7 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.filters.command import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from datetime import datetime
+from datetime import datetime, timedelta
 from aiogram_calendar import SimpleCalendar, SimpleCalendarCallback
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.enums import ParseMode
@@ -18,6 +18,9 @@ import asyncio
 import re
 import json
 from excursions_scraper import get_available_excursions
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Включаем логирование, чтобы не пропустить важные сообщения
 logging.basicConfig(level=logging.INFO)
@@ -131,10 +134,10 @@ async def process_start_date_choosing(callback_query: CallbackQuery, callback_da
     :param state: Текущее состояние конечного автомата.
     """
     calendar = SimpleCalendar(show_alerts=True
-    )
+                              )
     today_date = datetime.today()
     # Валидация выбора даты с помощью диапазона, доступного в календаре. Не может предшествовать текущей дате.
-    calendar.set_dates_range(today_date, datetime(day=today_date.day, month=today_date.month, year=today_date.year + 1))
+    calendar.set_dates_range(today_date - timedelta(days=1), datetime(day=today_date.day, month=today_date.month, year=today_date.year + 1))
     selected, date = await calendar.process_selection(callback_query, callback_data)
     if selected:
         # Сохраняет дату начала поездки в машину состояний
@@ -202,7 +205,17 @@ def form_trip_content(ex_info: Dict) -> str:
     return content
 
 
-sorting = ['По цене ↑', 'По продолжительности ↑', 'По оценке ↓']
+sorting = ['По продолжительности ↑', 'По цене ↑', 'По оценке ↓']
+
+sorting_kb = ReplyKeyboardMarkup(keyboard=[
+    [
+        KeyboardButton(text=sorting[0])
+    ],
+    [
+        KeyboardButton(text=sorting[1]),
+        KeyboardButton(text=sorting[2])
+    ],
+], resize_keyboard=True)
 
 
 @dp.message(TripInfo.showing_type_filtered_trips, F.text.in_(ex_types))
@@ -229,7 +242,7 @@ async def show_all_trips(message: Message, state: FSMContext):
         content = form_trip_content(ex_info)
         await message.answer_photo(URLInputFile(ex_info['image']), caption=content)
 
-    await message.answer('Отсортировать экскурсии?', reply_markup=make_row_keyboard(sorting))
+    await message.answer('Отсортировать экскурсии?', reply_markup=sorting_kb)
     await state.set_state(TripInfo.showing_sorted_trips)
 
 
@@ -261,7 +274,8 @@ async def show_sorted_trips(message: Message, state: FSMContext):
     user_data = await state.get_data()
     excursions_list = user_data['excursions_list']
     if message.text.lower() == 'по цене ↑':
-        sorted_list = sorted(excursions_list, key=lambda x: int(re.search(r'\d+', x[1]['price']).group()))
+        print(sorted(excursions_list, key=lambda x: re.search(r'\d+\s?\d+', x[1]['price']).group().replace('13\xa0600', '')))
+        sorted_list = sorted(excursions_list, key=lambda x: int(re.search(r'\d+\s?\d+', x[1]['price']).group().replace('\xa0', '')))
     elif message.text.lower() == 'по оценке ↓':
         sorted_list = sorted(excursions_list, key=lambda x: float(re.search(r'\d+\.\d+', x[1]['rating_value']).group()),
                              reverse=True)
@@ -285,7 +299,7 @@ async def sorting_chosen_incorrectly(message: Message):
     await message.answer(
         text="Я не знаю такого типа сортировки.\n"
              "Пожалуйста, выберите один из типов ниже:",
-        reply_markup=make_row_keyboard(sorting))
+        reply_markup=sorting_kb)
 
 
 async def main():
