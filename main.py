@@ -6,7 +6,6 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.filters.command import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from config import TOKEN
 from datetime import datetime
 from aiogram_calendar import SimpleCalendar, SimpleCalendarCallback, get_user_locale
 from aiogram import Bot, Dispatcher, types, F
@@ -23,6 +22,7 @@ from excursions_scraper import get_available_excursions
 # Включаем логирование, чтобы не пропустить важные сообщения
 logging.basicConfig(level=logging.INFO)
 # Объект бота
+TOKEN = os.getenv('TOKEN')
 bot = Bot(token=TOKEN, parse_mode=ParseMode.HTML, disable_web_page_preview=True)
 # Диспетчер
 dp = Dispatcher()
